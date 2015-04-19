@@ -1,14 +1,9 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+Reproducible Research Peer Assessment #1
+===============
+##Downloading and Loading the Data
 
+This is the code to download the data and load it into the variable "data."
 
-## Loading and preprocessing the data
-
-This downloads the data, unzips it, and loads it into working directory as variable "data."
 ```{r download_and_mean}
 #Reproducible Research, Project 1
 #Download Data
@@ -20,8 +15,8 @@ data <- read.csv("activity.csv")
 print("Sweet, the data is downloaded, unzipped, and is in your working directory.")
 ```
 
-Preprocess the data by creating three new dataframes.  One will be for steps per day, one for total steps per interval, and one for mean steps per interval.
 
+Preprocess the data by creating three new dataframes.  One will be for steps per day, one for total steps per interval, and one for mean steps per interval.
 ```{r}
 #change date column from factor to date format
 data$date <- as.Date(data$date)
@@ -43,7 +38,8 @@ names(avg_steps_per_interval)[2] <- "Average_Steps"
 
 ```
 
-## What is mean total number of steps taken per day?
+##Steps Per Day
+
 Creates a histogram of stpes per day:
 ```{r}
 library(ggplot2)
@@ -58,10 +54,9 @@ The mean steps per day is `r stepmean`.
 
 The median steps per day is `r stepmedian`.
 
+##Steps per Interval
 
-
-## What is the average daily activity pattern?
-
+###Time Series Plot
 Makes a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis):
 ```{r}
 ggplot(avg_steps_per_interval, aes(Interval,Average_Steps)) + geom_line() + xlab("Interval") + ylab("Steps per Interval")
@@ -72,9 +67,7 @@ max_interval <- avg_steps_per_interval[which.max(avg_steps_per_interval$Average_
 ```
 The interval with the highest average steps is `r max_interval$Interval` with an average number of steps of `r max_interval$Average_Steps`.
 
-
-## Imputing missing values
-
+##Inputing Missing Values
 Calculates the number and percentage of missing values:
 ```{r}
 library(scales)
@@ -109,8 +102,7 @@ for(n in 1:nrow(data2)){
   }
 }
 ```
-Make a new histogram showing the imputed data:
-
+Make Histogram:
 ```{r}
 stepsperday2 <- stepsperday
 stepsperday2 <- aggregate(data2$steps, by=list(data2$date),sum,na.rm=T)
@@ -121,10 +113,8 @@ ggplot(data=stepsperday2, aes(stepsperday2$Steps)) + geom_histogram(col="red", f
 ```
 Recalculates the mean and median steps taken perday.
 ```{r}
-##original mean and median
 stepmean <- mean(stepsperday$Steps)
 stepmedian <- median(stepsperday$Steps)
-##imputed mean and median
 stepmean2<- mean(stepsperday2$Steps)
 stepmedian2<- median(stepsperday2$Steps)
 ```
@@ -134,27 +124,4 @@ The mean steps per day without NAs is `r stepmean2`.
 The median steps per day with NAs is `r stepmedian`.
 The median steps per day without NAs is `r stepmedian2`.
 
-As one can see, the median did change slightly when the NAs were imputed.
-
-## Are there differences in activity patterns between weekdays and weekends?
-
-Create a column with two factors: weekday and weekend:
-```{r}
-weekday     <- weekdays(data2$date)
-dayofweek   <- cbind(data2, weekday)
-weekend   <- ifelse(dayofweek$weekday %in% c("Monday","Tuesday","Wednesday","Thursday","Friday"), "weekday", "weekend")
-weekday   <- cbind(dayofweek, weekend)
-```
-2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
-
-```{r}
-# load the lattice package
-library(lattice)
-
-#summarize the number of steps by interval by weekend and weekday
-colnames(weekday)[5] <- "day"
-daytypesteps <- aggregate(steps ~ interval + day, data = weekday, mean)
-
-#create a xyplot
-xyplot(steps ~ interval | day, daytypesteps, type = "l", layout = c(1, 2), 
-    xlab = "Interval", ylab = "Mean number of steps", col = "red")
+##Weekdays vs Weekends
